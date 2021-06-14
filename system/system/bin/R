@@ -1,0 +1,457 @@
+#!/system/bin/sh
+
+e="\x1b[";c=$e"39;49;00m";y=$e"93;01m";cy=$e"96;01m";r=$e"1;91m";g=$e"92;01m";
+
+{
+#bin
+bin=/data/local/Reborn/bin
+Reborn=/data/local/Reborn
+bb=/data/local/Reborn/bin/busybox
+tmp=/data/local/Reborn/tmp
+pybin=/data/local/Reborn/bin/python
+py=/data/data/com.termux/files/usr/bin/python
+editor=/data/local/Reborn/editor
+profile=/data/local/Reborn/bin/Reborn.prop
+log=/data/local/Reborn/log/Reborn.log
+loglive=/data/local/Reborn/log/Reborn.live.log
+chmod -R 755 /data/local/Reborn/bin
+if [ -f /data/data/com.termux/files/usr/bin/python ]; then
+  py=/data/data/com.termux/files/usr/bin/python
+  else
+  echo " "
+  echo $g "- python Not Installed In Termux !"
+  echo " "
+  echo $g "- apt update"
+  echo $g "- pkg install python"
+  echo " "
+  sleep 1s
+  exit
+fi;
+}
+
+start_vbr () {
+cd /sdcard/Reborn/dat;
+echo " Konversi img ke dat..."
+if [ -f /sdcard/Reborn/dat/vendor.img ]; then
+   /data/local/Reborn/bin/vbr2img -v 4 vendor.img;
+   rm -rf vendor.img;
+  else
+    echo " vendor.img tidak ditemukan, copy vendor.new.dat.br dari zip ROM dahulu";
+  fi;
+}
+
+start_dancok () {
+cd /sdcard/Reborn/dat;
+echo " Konversi dat ke br..."
+if [ -f /sdcard/Reborn/dat/vendor.new.dat ]; then
+   /data/local/Reborn/bin/brotli -4kfv vendor.new.dat >/dev/nullt;
+   echo >/sdcard/Reborn/dat/vendor.patch.dat
+   rm -rf  vendor.new.dat;
+  else
+    echo " vendor.new.dat tidak ditemukan";
+  fi;
+}
+
+start_ssdat () {
+cd /sdcard/Reborn/dat;
+echo " Konversi dat.br ke dat..."
+if [ -f /sdcard/Reborn/dat/system.new.dat.br ]; then
+   /data/local/Reborn/bin/brotli -d system.new.dat.br;
+  else
+    echo " system.new.dat.br tidak ditemukan, copy system.new.dat.br dari zip ROM dahulu";
+  fi;
+}
+
+start_sdat () {
+cd /sdcard/Reborn/dat;
+echo " Konversi dat ke img..."
+if [ -f /sdcard/Reborn/dat/system.new.dat ]; then
+   /data/local/Reborn/bin/sdat2img system.transfer.list system.new.dat system.img;
+  else
+    echo " system.new.dat tidak ditemukan, copy system.new.dat dari zip ROM dahulu";
+  fi;
+if [ -f /sdcard/Reborn/dat/system.new.dat ]; then
+    rm -rf system.new.dat.br;
+    rm -rf system.new.dat;
+    rm -rf system.transfer.list;
+  else
+    echo " "
+fi;
+}
+
+start_vvdat () {
+cd /sdcard/Reborn/dat;
+echo " Konversi dat.br ke dat..."
+if [ -f /sdcard/Reborn/dat/vendor.new.dat.br ]; then
+   /data/local/Reborn/bin/brotli -d vendor.new.dat.br;
+  else
+    echo " vendor.new.dat.br tidak ditemukan, copy vendor.new.dat.br dari zip ROM dahulu";
+  fi;
+}
+
+start_pdat () {
+cd /sdcard/Reborn/dat;
+echo " Konversi dat ke img..."
+if [ -f /sdcard/Reborn/dat/vendor.new.dat ]; then
+   /data/local/Reborn/bin/vdat2img vendor.transfer.list vendor.new.dat vendor.img;
+  else
+    echo " vendor.new.dat tidak ditemukan, copy vendor.new.dat dari zip ROM dahulu";
+  fi;
+if [ -f /sdcard/Reborn/dat/vendor.new.dat ]; then
+    rm -rf vendor.new.dat.br;
+    rm -rf vendor.new.dat;
+    rm -rf vendor.transfer.list;
+  else
+    echo " "
+fi;
+}
+
+start_sbr () {
+cd /sdcard/Reborn/dat;
+echo " Konversi img ke dat..."
+if [ -f /sdcard/Reborn/dat/system.img ]; then
+   /data/local/Reborn/bin/sbr2img -v 4 system.img;
+   rm -rf system.img;
+  else
+    echo " system.img tidak ditemukan, copy system.new.dat.br dari zip ROM dahulu";
+  fi;
+}
+
+start_bawok () {
+cd /sdcard/Reborn/dat;
+echo " Konversi dat ke br..."
+if [ -f /sdcard/Reborn/dat/system.new.dat ]; then
+   /data/local/Reborn/bin/brotli -4kfv system.new.dat;
+  else
+    echo " system.new.dat tidak ditemukan";
+  fi;
+if [ -f /sdcard/Reborn/dat/system.new.dat ]; then
+    echo >/sdcard/Reborn/dat/system.patch.dat
+    rm -rf system.new.dat;
+  else
+    echo " "
+fi;
+}
+
+start_sparse () {
+cd /data/local/Reborn;
+  [ -d /data/local/Reborn/editor ] && rm -rf /data/local/Reborn/editor
+  mkdir -p /data/local/Reborn/editor
+if [ -f /data/local/Reborn/system.img ]; then
+  echo $g "- Extraction system.img... "
+  $py $pybin/imgextractor.py /data/local/Reborn/system.img /data/local/Reborn/editor/system >> /data/local/Reborn/editor/loglive
+  mv -f /data/local/Reborn/system_file_contexts /data/local/Reborn/editor/system_file_contexts
+  mv -f /data/local/Reborn/system_fs_config /data/local/Reborn/editor/system_fs_config
+  rm -rf /data/local/Reborn/system.img
+  rm -rf /data/local/Reborn/system.raw.img
+  echo $g " Hasil extrack ada di dalam folder editor..";
+  else
+  echo $g " Dibatalkan , tidak ada system.img..";
+  echo $g " Masukan Terlebih Dahulu system.img ke folder /data/local/Reborn..";
+fi;
+}
+
+start_vparse () {
+cd /data/local/Reborn;
+  [ -d /data/local/Reborn/editor ] && rm -rf /data/local/Reborn/editor
+  mkdir -p /data/local/Reborn/editor
+if [ -f /data/local/Reborn/vendor.img ]; then
+  echo $g "- Extraction vendor.img... "
+  $py $pybin/imgextractor.py /data/local/Reborn/vendor.img /data/local/Reborn/editor/vendor >> /data/local/Reborn/editor/loglive
+  mv -f /data/local/Reborn/vendor_file_contexts /data/local/Reborn/editor/vendor_file_contexts
+  mv -f /data/local/Reborn/vendor_fs_config /data/local/Reborn/editor/vendor_fs_config
+  rm -rf /data/local/Reborn/vendor.img
+  rm -rf /data/local/Reborn/vendor.raw.img
+  echo $g " Hasil extrack ada di dalam folder editor..";
+  else
+  echo $g " Dibatalkan , tidak ada vendor.img..";
+  echo $g " Masukan Terlebih Dahulu vendor.img ke folder /data/local/Reborn..";
+fi;
+}
+
+start_sgm () {
+cd /data/local/Reborn;
+if [ -d $editor/system ]; then
+  echo $g "- Repack system"
+  size1=`$bb du -sk $editor/system | $bb awk '{$1*=1024;$1=int($1*1.05);printf $1}'`
+  $bin/make_ext4fs -s -L system -T 2009110000 -S $editor/system_file_contexts -C $editor/system_fs_config -l $size1 -a system $tmp/system.img $editor/system/ > /dev/null 2>&1
+fi;
+}
+
+start_vgm () {
+cd /data/local/Reborn;
+if [ -d $editor/vendor ]; then
+  echo $g "- Repack vendor"
+  size1=`$bb du -sk $editor/vendor | $bb awk '{$1*=1024;$1=int($1*1.05);printf $1}'`
+  $bin/make_ext4fs -s -L vendor -T 2009110000 -S $editor/vendor_file_contexts -C $editor/vendor_fs_config -l $size1 -a vendor $tmp/vendor.img $editor/vendor/ > /dev/null 2>&1
+fi;
+}
+
+## 
+##menu awal
+
+menu_awal () {
+
+
+}
+
+###################
+$bb mount -o remount,rw -t auto /data >/dev/null 2>&1
+$bb mount -o remount,rw -t auto /system >/dev/null 2>&1
+$bb mount -o remount,rw -t auto / >/dev/null 2>&1
+mount -o remount,rw -t auto /data >/dev/null 2>&1
+mount -o remount,rw -t auto /system >/dev/null 2>&1
+mount -o remount,rw -t auto / >/dev/null 2>&1
+
+
+$bb clear
+
+echo ""
+echo $g"===================================================="
+echo "================== Reborn Tools  ==================="
+echo "===================================================="        
+echo $y"=       ____           _____           _      __   ="
+echo "=    /       \       /       \       /  \    /  |  ="
+echo "=    #######  |      #######  |      ### \   ## |  ="
+echo "=    ## |__## |      ## |__## |      #### \  ## |  =" 
+echo "=    ##    ## /      ##    ## /      ## ## \ ## |  ="
+echo "=    ###### _/       ######  \       ##  ##  ## |  =" 
+echo "=    ## ##  \        ## |__## |      ## | ## ## |  ="
+echo "=    ## | ## \   _   ##    ## |   _  ## |  #### |  ="
+echo "=    ##/   ##/  |_|  ###### _/   |_| ##/    ###/   ="
+echo $g"===================================================="
+echo "=================== - R.B.N - ======================"
+echo $g"===================================================="
+#echo "                                                    "
+#echo $r"____________________________________________________"
+echo "                                                    "
+echo $cy"         masukkan [R] untuk kembali ke menu         "
+echo $y"===================================================="
+echo "______________________Feature_______________________"
+echo "===================================================="
+echo ""
+echo $g"===================================================="
+echo $y"1.🔹Convert system.new.dat.br To system.img"
+echo $g"===================================================="
+echo $y"2.🔹Convert vendor.new.dat.br To vendor.img"
+echo $g"===================================================="
+echo $y"3.🔹Convert system.img To system.new.dat.br"
+echo $g"===================================================="
+echo $y"4.🔹Convert vendor.img To vendor.new.dat.br"
+echo $g"===================================================="
+echo $y"5.🔹Extract system.img"
+echo $g"===================================================="
+echo $y"6.🔹Extract vendor.img"
+echo $g"===================================================="
+echo $y"7.🔹Repact system To img"
+echo $g"===================================================="
+echo $y"8.🔹Repact vendor To img"
+echo $g"===================================================="
+echo $y"9.🔹Backup file To img"
+echo $g"===================================================="
+echo $y"10.🔹Build Rom Reborn"
+echo $g"===================================================="
+echo $y"11.🔹Donasi"
+echo $g"===================================================="
+echo ""
+echo $cy"      masukkan [C] untuk melihat anunya REBORN     "
+echo ""
+echo $y"===================================================="
+echo "===================================================="
+echo $g"===================================================="
+echo "================     REBORN TEAM    ================"
+echo "===================================================="
+echo $y""
+echo -n "Masukkan pilihan dan enter [1-11]: "  
+read character
+case $character in 
+
+
+1) $bb clear;
+start_ssdat
+$bb echo ""
+start_sdat
+$bb echo ""
+$bb echo -n " Pergi kembali ke menu?
+[ Ya = 1 | Tidak = 2 ]: "
+read option
+if [ $option -ne 1 ]; then
+	$bb echo ""
+	$bb echo " Keluar dari menu. "
+	$bb sleep 1
+	exit
+else
+	$bb echo ""
+  R
+	$bb sleep 1
+fi
+$bb clear ;;
+
+2) $bb clear;
+start_vvdat
+$bb echo ""
+start_pdat
+$bb echo ""
+$bb echo -n " Pergi kembali ke menu?
+[ Ya = 1 | Tidak = 2 ]: "
+read option
+if [ $option -ne 1 ]; then
+	$bb echo ""
+	$bb echo " Keluar dari menu. "
+	$bb sleep 1
+	exit
+else
+	$bb echo ""
+  R
+	$bb sleep 1
+fi
+$bb clear ;;
+
+3) $bb clear;
+start_sbr
+$bb echo ""
+start_bawok
+$bb echo ""
+$bb echo -n " Pergi kembali ke menu?
+[ Ya = 1 | Tidak = 2 ]: "
+read option
+if [ $option -ne 1 ]; then
+	$bb echo ""
+	$bb echo " Keluar dari menu. "
+	$bb sleep 1
+	exit
+else
+	$bb echo ""
+  R
+	$bb sleep 1
+fi
+$bb clear ;;
+
+4) $bb clear;
+start_vbr
+$bb echo ""
+start_dancok
+$bb echo ""
+$bb echo -n " Pergi kembali ke menu?
+[ Ya = 1 | Tidak = 2 ]: "
+read option
+if [ $option -ne 1 ]; then
+	$bb echo ""
+	$bb echo " Keluar dari menu. "
+	$bb sleep 1
+	exit
+else
+	$bb echo ""
+  R
+	$bb sleep 1
+fi
+$bb clear ;;
+
+R) $bb clear;
+R
+sleep 1
+$bb echo "";;
+
+5) $bb clear;
+start_sparse
+$bb echo ""
+$bb echo -n " Pergi kembali ke menu?
+[ Ya = 1 | Tidak = 2 ]: "
+read option
+if [ $option -ne 1 ]; then
+	$bb echo ""
+	$bb echo " Keluar dari menu. "
+	$bb sleep 1
+	exit
+else
+	$bb echo ""
+  R
+	$bb sleep 1
+fi
+$bb clear ;;
+
+6) $bb clear;
+start_vparse
+$bb echo ""
+$bb echo -n " Pergi kembali ke menu?
+[ Ya = 1 | Tidak = 2 ]: "
+read option
+if [ $option -ne 1 ]; then
+	$bb echo ""
+	$bb echo " Keluar dari menu. "
+	$bb sleep 1
+	exit
+else
+	$bb echo ""
+  R
+	$bb sleep 1
+fi
+$bb clear ;;
+
+7) $bb clear;
+start_sgm
+$bb echo ""
+$bb echo -n " Pergi kembali ke menu?
+[ Ya = 1 | Tidak = 2 ]: "
+read option
+if [ $option -ne 1 ]; then
+	$bb echo ""
+	$bb echo " Keluar dari menu. "
+	$bb sleep 1
+	exit
+else
+	$bb echo ""
+  R
+	$bb sleep 1
+fi
+$bb clear ;;
+
+8) $bb clear;
+start_vgm
+$bb echo ""
+$bb echo -n " Pergi kembali ke menu?
+[ Ya = 1 | Tidak = 2 ]: "
+read option
+if [ $option -ne 1 ]; then
+	$bb echo ""
+	$bb echo " Keluar dari menu. "
+	$bb sleep 1
+	exit
+else
+	$bb echo ""
+  R
+	$bb sleep 1
+fi
+$bb clear ;;
+
+9) $bb clear;
+/data/local/Reborn/bin/bawok
+sleep 1
+$bb echo "";;
+
+10) $bb clear;
+/data/local/Reborn/bin/torok
+sleep 1
+$bb echo "";;
+
+11) $bb clear;
+/data/local/Reborn/bin/donat
+sleep 1
+$bb echo "";;
+
+R) $bb clear;
+R
+sleep 1
+$bb echo "";;
+
+C) $bb clear;
+/data/local/Reborn/bin/contributor
+sleep 1
+$bb echo "";;
+
+
+*) $bb clear;
+echo -e "Pilihan Salah..Selamat tinggal.. "
+esac
+$bb echo ""
+exit

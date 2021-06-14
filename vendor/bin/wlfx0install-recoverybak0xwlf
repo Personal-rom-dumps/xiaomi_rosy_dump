@@ -1,0 +1,11 @@
+#!/vendor/bin/sh
+if ! applypatch --check EMMC:/dev/block/bootdevice/by-name/recovery$(getprop ro.boot.slot_suffix):22628352:49c8baa4bc69aa9cf2ef958b9eb5565a87410870; then
+  applypatch --bonus /vendor/etc/recovery-resource.dat \
+          --patch /vendor/recovery-from-boot.p \
+          --source EMMC:/dev/block/bootdevice/by-name/boot$(getprop ro.boot.slot_suffix):15181824:681cc0d5684b347ed29a78857e368ecea6e2f807 \
+          --target EMMC:/dev/block/bootdevice/by-name/recovery$(getprop ro.boot.slot_suffix):22628352:49c8baa4bc69aa9cf2ef958b9eb5565a87410870 && \
+      log -t recovery "Installing new recovery image: succeeded" || \
+      log -t recovery "Installing new recovery image: failed"
+else
+  log -t recovery "Recovery image already installed"
+fi
